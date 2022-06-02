@@ -59,7 +59,7 @@ void handle_connection() {
         std::string s;
         std::getline(std::cin, s);
         std::cerr << s << "\n";
-        std::cout << s << std::endl;
+//        std::cout << s << std::endl;
     }
 }
 
