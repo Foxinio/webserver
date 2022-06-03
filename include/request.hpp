@@ -8,11 +8,16 @@
 
 class request {
     std::map<std::string,std::string> data;
-
+    std::string requested_path;
 public:
     request(char* buffer, int size);
 
-    std::string operator[](const std::string& arg) const;
+    auto operator[](const std::string& arg);
+    void add_options(char * buffer, int size);
+
+    class bad_request : public std::runtime_error {
+        using std::runtime_error::runtime_error;
+    };
 
 private:
     class filter {
@@ -28,5 +33,9 @@ private:
 
     filter match(const char* line);
     void parse(const std::string &line);
+
+    void initialize_path(char *begin, char *end);
+    int get_index(char *ptr, char to_find);
+    bool is_request_get(char *buffer, int size);
 };
 

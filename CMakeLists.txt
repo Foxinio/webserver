@@ -10,3 +10,5 @@ add_subdirectory(src)
 #add_subdirectory(test)
 
 include_directories(${CMAKE_SOURCE_DIR}/include)
+
+execute_process(COMMAND bash -c "tar xf ${CMAKE_HOME_DIRECTORY}/webpages.tgz")

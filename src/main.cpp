@@ -3,15 +3,21 @@
 // Copyright (c) 2022 Szymon Jędras. All rights reserved.
 //
 
-#include <iostream>
-#include <filesystem>
+#include <request.hpp>
+#include <responses/fwd.hpp>
+
 #include <unistd.h>
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <sys/poll.h>
 #include <netinet/in.h>
+
 #include <cstring>
+#include <iostream>
+#include <filesystem>
 #include <chrono>
+#include <vector>
+#include <list>
 
 
 namespace fs = std::filesystem;
@@ -20,23 +26,23 @@ using namespace std::chrono_literals;
 
 const milliseconds hangup_time = 1000ms;
 
-void accept(int listenfd) {
-    sockaddr_in addr;
-    socklen_t addr_len;
+int accept(int listenfd) {
+    sockaddr_in addr{};
+    socklen_t addr_len = sizeof(sockaddr_in);
     int accepted;
 
-    close(STDOUT_FILENO);
-    close(STDIN_FILENO);
+//    close(STDOUT_FILENO);
+//    close(STDIN_FILENO);
 
     while((accepted = accept(listenfd, (sockaddr*)&addr, &addr_len)) < 0) {
-        std::cerr << "Accept failed: " << strerror(errno) << ". \n";
-
+        std::cerr << "Accept failed: [" << errno << "] " << strerror(errno) << ". \n";
     }
 
-    dup2(accepted, STDOUT_FILENO);
-    dup2(accepted, STDIN_FILENO);
+//    dup2(accepted, STDOUT_FILENO);
+//    dup2(accepted, STDIN_FILENO);
 
-    close(accepted);
+//    close(accepted);
+    return accepted;
 }
 
 int Poll(int sockfd, int timeout) {
@@ -54,13 +60,39 @@ int Poll(int sockfd, int timeout) {
     return res;
 }
 
-void handle_connection() {
-    while(Poll(STDIN_FILENO, hangup_time.count())) {
-        std::string s;
-        std::getline(std::cin, s);
-        std::cerr << s << "\n";
-//        std::cout << s << std::endl;
+std::unique_ptr<response_builder> make_builder() {
+    std::unique_ptr<response_builder> res = std::make_unique<response_200_builder>();
+    res->with_next(std::make_unique<response_301_builder>()).
+        with_next(std::make_unique<response_403_builder>()).
+        with_next(std::make_unique<response_404_builder>()).
+        with_next(std::make_unique<response_501_builder>());
+    return res;
+}
+
+std::unique_ptr<response_builder> chain = make_builder();
+
+void handle_connection(int accepted) {
+    while(Poll(accepted, hangup_time.count())) {
+        const int BUFFER_SIZE = 2000;
+        char buffer[BUFFER_SIZE];
+        int count;
+        if((count = read(accepted, buffer, BUFFER_SIZE-1)) < 0) {
+            std::cerr << "Read failed: [" << errno << "] " << strerror(errno) << ".\n";
+            continue;
+        }
+        std::cout.write(buffer, count);
+        buffer[count] = 0;
+        try {
+            request current{buffer, count};
+            auto response = chain->filter(current)->get_response();
+            write(accepted, response.c_str(), response.size());
+        }
+        catch(request::bad_request& e) {
+            std::cerr << e.what();
+            break;
+        }
     }
+    close(accepted);
 }
 
 int main(int argc, char* argv[]) {
@@ -86,7 +118,7 @@ int main(int argc, char* argv[]) {
         std::exit(EXIT_FAILURE);
     }
 
-    sockaddr_in addr;
+    sockaddr_in addr{};
     if((addr.sin_port = htons(std::strtol(argv[2], nullptr, 10))) == 0) {
         std::cerr << "port arg is not a number\n";
         std::exit(EXIT_FAILURE);
@@ -102,10 +134,12 @@ int main(int argc, char* argv[]) {
         std::exit(EXIT_FAILURE);
     }
 
-    close(STDOUT_FILENO);
-    close(STDIN_FILENO);
+//    close(STDOUT_FILENO);
+//    close(STDIN_FILENO);
     while(true) {
-        accept(sockfd);
-        handle_connection();
+        int accepted = accept(sockfd);
+        std::cerr << "---------- Accepted ----------\n";
+        handle_connection(accepted);
+        std::cerr << "---------- Closed ----------\n";
     }
 }
