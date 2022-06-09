@@ -18,10 +18,9 @@ const char* forbidden_response = R"abc(<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 
 
 std::string response_forbidden::get_header() {
     return header_builder()
-            .with_connection(req["Connection-Type:"])
             .with_content_type(header_builder::html)
             .with_content_length(std::char_traits<char>::length(forbidden_response))
-            .to_string("").str();
+            .to_string("403 Forbidden").str();
 }
 
 void response_forbidden::fill_response(int outfd) {

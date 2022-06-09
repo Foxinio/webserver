@@ -32,7 +32,7 @@ int write(int fd, const char *ptr);
 class header_builder {
     std::string html_version = "HTTP/1.1";
     std::optional<std::string> date;
-    std::string connection = "Closed";
+    std::string connection = "keep-alive";
     std::optional<std::string> server = "MyServer/0.1";
     int content_length = 0;
     std::optional<std::string> content_type;

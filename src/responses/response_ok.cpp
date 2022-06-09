@@ -9,7 +9,6 @@
 std::string response_ok::get_header() {
     auto includer = include_file(req.requested_path);
     auto ss = header_builder()
-            .with_connection(req["Connection-Type:"])
             .with_content_type(header_builder::parse_content_type(req.requested_path))
             .with_content_length(includer.get_size())
             .to_string("200 OK");

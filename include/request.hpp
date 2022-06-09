@@ -5,6 +5,8 @@
 #pragma once
 
 #include <map>
+#include <string>
+#include <stdexcept>
 
 class request {
     std::map<std::string,std::string> data;

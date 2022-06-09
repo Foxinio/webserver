@@ -7,6 +7,8 @@
 #include <sys_wrapper.hpp>
 
 #include <sstream>
+#include <algorithm>
+#include <iostream>
 #include <fcntl.h>
 
 const char* response::standard_response = R"abc(<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
@@ -24,7 +26,6 @@ const char* response::standard_response = R"abc(<!DOCTYPE HTML PUBLIC "-//IETF//
 
 std::string response::get_header() {
     return header_builder()
-            .with_connection(req["Connection-Type:"])
             .with_content_length(standard_response_size())
             .with_content_type(header_builder::html)
             .to_string("501 Not Implemented").str();
@@ -47,6 +48,9 @@ void response::copy_file(int outfd) {
             if(red <= 0)
                 break;
             Write(outfd, buffer, red);
+            std::string extension = {req.requested_path.begin() + req.requested_path.find_last_of('.') + 1, req.requested_path.end()};
+            if(extension == "txt" || extension == "html")
+                std::cout.write(buffer, red);
         }
         close(filefd);
     }

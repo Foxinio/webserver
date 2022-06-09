@@ -67,7 +67,8 @@ int Poll(int sockfd, int timeout) {
         perror("poll error");
         std::exit(EXIT_FAILURE);
     }
-    return fds.revents&POLLIN;
+    if(res != 0 && (fds.revents&POLLIN) != 0) return true;
+    return false;
 }
 
 std::unique_ptr<response> get_response(request& req) {
@@ -91,3 +92,18 @@ bool is_forbidden(const std::string &path) {
     }
     return depth<0;
 }
+
+//void copy_file(const char* file_path) {
+//    int filefd = open(req.requested_path.c_str(), O_RDONLY);
+//    if(filefd >= 0) {
+//        const int BUFFER_SIZE = 4096;
+//        char* buffer = new char[BUFFER_SIZE];
+//        while (true) {
+//            int red = read(filefd, buffer, BUFFER_SIZE);
+//            if(red <= 0)
+//                break;
+//            std::cout.write(buffer)
+//        }
+//        close(filefd);
+//    }
+//}
