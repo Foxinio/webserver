@@ -16,7 +16,7 @@ public:
 
     static request empty;
 
-    auto operator[](const std::string& arg);
+    std::string operator[](const std::string& arg);
     void add_options(char * buffer, int size);
 
     class bad_request : public std::runtime_error {

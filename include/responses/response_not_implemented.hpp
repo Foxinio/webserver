@@ -10,5 +10,4 @@ class response_not_implemented : public response {
 public:
     using response::response;
     response_not_implemented();
-    std::string get_response() override;
 };

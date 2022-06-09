@@ -9,5 +9,6 @@
 class response_forbidden : public response {
 public:
     using response::response;
-    std::string get_response() override;
+    std::string get_header() override;
+    void fill_response(int outfd) override;
 };

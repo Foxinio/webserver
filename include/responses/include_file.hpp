@@ -13,5 +13,7 @@ public:
 
     friend std::ostream& operator<<(std::ostream& stream, const include_file&);
     int get_size();
+
+    void copy(int fd);
 };
 

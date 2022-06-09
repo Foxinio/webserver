@@ -4,7 +4,7 @@
 //
 #include <responses/response_not_found.hpp>
 
-std::string response_not_found::get_response() {
+std::string response_not_found::get_header() {
     return header_builder()
             .with_connection("keep-alive")
             .to_string("404 Not Found").str();

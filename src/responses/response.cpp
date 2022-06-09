@@ -4,16 +4,62 @@
 //
 #include <responses/response.hpp>
 
-#include <sstream>
+#include <sys_wrapper.hpp>
 
-std::string response::get_response() {
+#include <sstream>
+#include <fcntl.h>
+
+const char* response::standard_response = R"abc(<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
+<html>
+<head>
+   <title>400 Bad Request</title>
+</head>
+<body>
+   <h1>Bad Request</h1>
+   <p>Your browser sent a request that this server could not understand.</p>
+   <p>The request line contained invalid characters following the protocol string.</p>
+</body>
+</html>
+)abc";
+
+std::string response::get_header() {
     return header_builder()
-            .with_connection("keep-alive")
+            .with_connection(req["Connection-Type:"])
+            .with_content_length(standard_response_size())
+            .with_content_type(header_builder::html)
             .to_string("501 Not Implemented").str();
 }
 
 response::response(request &req)
     : req(req) {}
+
+void response::fill_response(int outfd) {
+    write(outfd, standard_response);
+}
+
+void response::copy_file(int outfd) {
+    int filefd = open(req.requested_path.c_str(), O_RDONLY);
+    if(filefd >= 0) {
+        const int BUFFER_SIZE = 4096;
+        char* buffer = new char[BUFFER_SIZE];
+        while (true) {
+            int red = read(filefd, buffer, BUFFER_SIZE);
+            if(red <= 0)
+                break;
+            Write(outfd, buffer, red);
+        }
+        close(filefd);
+    }
+}
+
+int response::standard_response_size() {
+    return std::char_traits<char>::length(standard_response);
+}
+
+
+int write(int fd, const char *ptr) {
+    return Write(fd, ptr, std::char_traits<char>::length(ptr));
+}
 
 std::stringstream header_builder::to_string(const std::string &code) const {
     std::stringstream ss;
@@ -66,11 +112,11 @@ header_builder &header_builder::with_content_type(const std::string &arg) {
 header_builder &header_builder::with_content_type(enum header_builder::content_type type) {
     switch(type) {
     case content_type::txt:
-        return with_content_type("text/plain");
+        return with_content_type("text/plain; charset=utf-8");
     case content_type::html:
-        return with_content_type("text/html");
+        return with_content_type("text/html; charset=utf-8");
     case content_type::css:
-        return with_content_type("text/css");
+        return with_content_type("text/css; charset=utf-8");
     case content_type::jpg:
         return with_content_type("image/jpg");
     case content_type::jpeg:
@@ -80,7 +126,7 @@ header_builder &header_builder::with_content_type(enum header_builder::content_t
     case content_type::pdf:
         return with_content_type("application/pdf");
     default:
-        return *this;
+        return with_content_type("application/octet-stream");
     }
 }
 
@@ -103,6 +149,8 @@ enum header_builder::content_type header_builder::parse_content_type(std::string
             return header_builder::content_type::png;
         else if(extension == "pdf")
             return header_builder::content_type::pdf;
+        else if(extension == "txt")
+            return header_builder::content_type::txt;
     }
-    return content_type::txt;
+    return content_type::other;
 }

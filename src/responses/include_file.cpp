@@ -6,6 +6,7 @@
 
 #include <fstream>
 #include <filesystem>
+#include <unistd.h>
 
 include_file::include_file(std::string &path)
     : path(path) {}

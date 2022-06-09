@@ -7,8 +7,10 @@
 #include <request.hpp>
 
 #include <sstream>
+#include <string>
 #include <optional>
 #include <memory>
+#include <unistd.h>
 
 class response {
 protected:
@@ -16,12 +18,19 @@ protected:
 
 public:
     response(request& req);
-    virtual std::string get_response();
+    virtual std::string get_header();
+    virtual void fill_response(int outfd);
+    void copy_file(int outfd);
+protected:
+    int standard_response_size();
 
+    static const char *standard_response;
 };
 
+int write(int fd, const char *ptr);
+
 class header_builder {
-    std::string html_version = "HTML/1.1";
+    std::string html_version = "HTTP/1.1";
     std::optional<std::string> date;
     std::string connection = "Closed";
     std::optional<std::string> server = "MyServer/0.1";
@@ -29,7 +38,8 @@ class header_builder {
     std::optional<std::string> content_type;
 
 public:
-    enum class content_type {
+    enum content_type {
+        other,
         txt,
         html,
         css,

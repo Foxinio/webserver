@@ -4,8 +4,18 @@
 //
 #include <responses/response_moved_permanently.hpp>
 
-std::string response_moved_permanently::get_response() {
-    return header_builder()
-            .with_connection("keep-alive")
-            .to_string("301 Moved Permanently").str();
+#include <responses/include_file.hpp>
+
+std::string response_moved_permanently::get_header() {
+    auto includer = include_file(req.requested_path);
+    auto ss = header_builder()
+            .with_connection(req["Connection-Type:"])
+            .with_content_type(header_builder::parse_content_type(req.requested_path))
+            .with_content_length(includer.get_size())
+            .to_string("301 Moved Permanently");
+    return ss.str();
+}
+
+void response_moved_permanently::fill_response(int outfd) {
+    copy_file(outfd);
 }

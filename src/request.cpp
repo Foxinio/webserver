@@ -70,6 +70,8 @@ void request::initialize_path(char* begin, char* end) {
         requested_path.pop_back();
     if(requested_path.back() == '/')
         throw bad_request("path is badly formatted");
+    if(requested_path.size() == 0)
+        requested_path = ".";
 }
 
 void request::parse(const std::string &line) {
@@ -86,10 +88,11 @@ void request::parse(const std::string &line) {
             return false;
         }
     });
-    if(iter != line.end())
-        data.emplace(std::make_pair<std::string,std::string>(
-                {line.begin(), iter-1},
-                {iter+1, line.end()}));
+    if(iter != line.end()) {
+        data.emplace(std::make_pair<std::string, std::string>(
+                {line.begin(), iter - 1},
+                {iter + 1, line.end()}));
+    }
 }
 
 request::filter request::match(const char * to_filer) {
@@ -109,7 +112,7 @@ void request::add_options(char *buffer, int size) {
     }
 }
 
-auto request::operator[](const std::string &arg) {
+std::string request::operator[](const std::string &arg) {
     return data[arg];
 }
 
