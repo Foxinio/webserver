@@ -69,9 +69,10 @@ std::stringstream header_builder::to_string(const std::string &code) const {
     std::stringstream ss;
     ss << html_version << " " << code << "\r\n";
     if(date) ss << "Date: " << *date << "\r\n";
+    if(location) ss << "Location: " << *location << "\r\n";
     if(server) ss << "Server: " << *server << "\r\n";
-    ss << "Content-Length: " << content_length << "\r\n";
-    ss << "Connection: " << connection << "\r\n";
+    if(content_length) ss << "Content-Length: " << *content_length << "\r\n";
+    if(connection) ss << "Connection: " << *connection << "\r\n";
     if(content_type) ss << "Content-Type: " << *content_type << "\r\n";
 
     ss << "\r\n";
@@ -132,6 +133,11 @@ header_builder &header_builder::with_content_type(enum header_builder::content_t
     default:
         return with_content_type("application/octet-stream");
     }
+}
+
+header_builder &header_builder::with_location(const std::string &arg) {
+    location = arg;
+    return *this;
 }
 
 enum header_builder::content_type header_builder::parse_content_type(std::string file_path) {

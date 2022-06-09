@@ -10,4 +10,5 @@ class response_not_found : public response {
 public:
     using response::response;
     std::string get_header() override;
+    void fill_response(int outfd) override;
 };

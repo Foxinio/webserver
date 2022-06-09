@@ -74,13 +74,12 @@ int Poll(int sockfd, int timeout) {
 std::unique_ptr<response> get_response(request& req) {
     if(is_forbidden(req.requested_path))
         return std::make_unique<response_forbidden>(req);
-    if(!fs::exists(req.requested_path) || fs::is_directory(req.requested_path)) {
-        req.requested_path = req.requested_path+"/"+"index.html";
-        if(fs::exists(req.requested_path))
-            return std::make_unique<response_moved_permanently>(req);
-        else
-            return std::make_unique<response_not_found>(req);
+    if(fs::is_directory(req.requested_path)) {
+        req.requested_path = req.requested_path + "/" + "index.html";
+        return std::make_unique<response_moved_permanently>(req);
     }
+    if(!fs::exists(req.requested_path))
+        return std::make_unique<response_not_found>(req);
     return std::make_unique<response_ok>(req);
 }
 

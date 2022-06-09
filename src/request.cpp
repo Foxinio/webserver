@@ -40,7 +40,7 @@ request::request(char *buffer, int size) {
     begin = end+1;
     end = get_index(buffer, end, "\r\n");
     html_version = {buffer + begin, buffer + end};
-    add_options(buffer + end + 1, size - end - 1);
+    add_options(buffer + end + 2, size - end - 2);
 }
 
 void request::initialize_path(char* begin, char* end) {

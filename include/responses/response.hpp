@@ -32,10 +32,11 @@ int write(int fd, const char *ptr);
 class header_builder {
     std::string html_version = "HTTP/1.1";
     std::optional<std::string> date;
-    std::string connection = "keep-alive";
+    std::optional<std::string> connection = "keep-alive";
     std::optional<std::string> server = "MyServer/0.1";
-    int content_length = 0;
+    std::optional<int> content_length;
     std::optional<std::string> content_type;
+    std::optional<std::string> location;
 
 public:
     enum content_type {
@@ -58,6 +59,7 @@ public:
     header_builder& with_content_length(int);
     header_builder& with_content_type(const std::string&);
     header_builder& with_content_type(enum content_type type);
+    header_builder& with_location(const std::string&);
 
     static enum content_type parse_content_type(std::string file_path);
 };
