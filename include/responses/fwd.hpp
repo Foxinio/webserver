@@ -4,8 +4,8 @@
 //
 #pragma once
 
-#include <responses/response_200.hpp>
-#include <responses/response_301.hpp>
-#include <responses/response_403.hpp>
-#include <responses/response_404.hpp>
-#include <responses/response_501.hpp>
+#include <responses/response_ok.hpp>
+#include <responses/response_moved_permanently.hpp>
+#include <responses/response_forbidden.hpp>
+#include <responses/response_not_found.hpp>
+#include <responses/response_not_implemented.hpp>

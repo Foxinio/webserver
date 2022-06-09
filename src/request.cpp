@@ -6,12 +6,23 @@
 
 #include <cstring>
 
-int request::get_index(char* ptr, char to_find) {
-    auto res = strchr(ptr, to_find);
+
+request request::empty;
+
+int request::get_index(char *ptr, int start, char to_find) {
+    auto res = strchr(ptr+start, to_find);
     if(res == nullptr) {
         throw bad_request("char not found");
     }
-    return ptr - res;
+    return res - ptr;
+}
+
+int request::get_index(char *ptr, int start, const char *to_find) {
+    auto res = strstr(ptr+start, to_find);
+    if(res == nullptr) {
+        throw bad_request("char not found");
+    }
+    return res - ptr;
 }
 
 bool request::is_request_get(char* buffer, int size) {
@@ -21,12 +32,15 @@ bool request::is_request_get(char* buffer, int size) {
            buffer[2] == 'T';
 }
 request::request(char *buffer, int size) {
-    if(!is_request_get(buffer, size)) throw bad_request("not a GET request");
-    int j = get_index(buffer, ' ') + 1;
-    int i = get_index(buffer + j, ' ');
-    initialize_path(buffer + j, buffer + i);
-    j = get_index(buffer+i,'\n') + 1;
-    add_options(buffer + j, size - j);
+    if(!is_request_get(buffer, size))
+        throw bad_request("not a GET request");
+    int begin = get_index(buffer, 0, ' ') + 1;
+    int end = get_index(buffer, begin, ' ');
+    initialize_path(buffer + begin + 1, buffer + end);
+    begin = end+1;
+    end = get_index(buffer, end, "\r\n");
+    html_version = {buffer + begin, buffer + end};
+    add_options(buffer + end + 1, size - end - 1);
 }
 
 void request::initialize_path(char* begin, char* end) {
@@ -52,6 +66,10 @@ void request::initialize_path(char* begin, char* end) {
             begin++;
         }
     }
+    if(requested_path.back() == '/')
+        requested_path.pop_back();
+    if(requested_path.back() == '/')
+        throw bad_request("path is badly formatted");
 }
 
 void request::parse(const std::string &line) {
@@ -68,9 +86,10 @@ void request::parse(const std::string &line) {
             return false;
         }
     });
-    data.emplace(std::make_pair<std::string,std::string>(
-            {line.begin(), iter-1},
-            {iter+1, line.end()}));
+    if(iter != line.end())
+        data.emplace(std::make_pair<std::string,std::string>(
+                {line.begin(), iter-1},
+                {iter+1, line.end()}));
 }
 
 request::filter request::match(const char * to_filer) {
@@ -79,13 +98,13 @@ request::filter request::match(const char * to_filer) {
 
 void request::add_options(char *buffer, int size) {
     for(int i = 0, j = 0; i < size; i++) {
-        if(buffer[i] == '\n') {
+        if(buffer[i] == '\r' && buffer[i+1] == '\n') {
             buffer[i] = 0;
-            match(buffer+j)
-                .find("Host")
-                .find("Accept")
-                .find("Connection");
-            j = i+1;
+            match(buffer+j).any();
+//                .find("Host:")
+//                .find("Accept:")
+//                .find("Connection:");
+            j = ++i+1;
         }
     }
 }
@@ -114,4 +133,11 @@ bool request::filter::contains(const char *pattern) {
             return false;
     }
     return pattern[i] == 0;
+}
+
+request::filter & request::filter::any() {
+    if(to_filer == nullptr) return *this;
+    parent.parse(to_filer);
+    to_filer = nullptr;
+    return *this;
 }

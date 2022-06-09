@@ -6,13 +6,8 @@
 
 #include <responses/response.hpp>
 
-class response_404 : public response {
+class response_not_found : public response {
 public:
     using response::response;
     std::string get_response() override;
-};
-
-class response_404_builder : public response_builder {
-public:
-    std::unique_ptr<response> filter(request &) override;
 };

@@ -8,9 +8,11 @@ target_sources(${CMAKE_PROJECT_NAME}
     PUBLIC
         ${CMAKE_INCLUDE_CURRENT_DIR}/pracownia-4.hpp
         ${CMAKE_INCLUDE_CURRENT_DIR}/request.hpp
+        ${CMAKE_INCLUDE_CURRENT_DIR}/stream.hpp
     PRIVATE
         main.cpp
         request.cpp
+        stream.cpp
         )
 
 add_subdirectory(responses)

@@ -6,13 +6,9 @@
 
 #include <responses/response.hpp>
 
-class response_403 : public response {
+class response_not_implemented : public response {
 public:
     using response::response;
+    response_not_implemented();
     std::string get_response() override;
-};
-
-class response_403_builder : public response_builder {
-public:
-    std::unique_ptr<response> filter(request &) override;
 };

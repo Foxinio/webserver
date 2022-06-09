@@ -6,13 +6,8 @@
 
 #include <responses/response.hpp>
 
-class response_301 : public response {
+class response_moved_permanently : public response {
 public:
     using response::response;
     std::string get_response() override;
-};
-
-class response_301_builder : public response_builder {
-public:
-    std::unique_ptr<response> filter(request &) override;
 };

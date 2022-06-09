@@ -6,13 +6,8 @@
 
 #include <responses/response.hpp>
 
-class response_501 : public response {
+class response_forbidden : public response {
 public:
     using response::response;
     std::string get_response() override;
-};
-
-class response_501_builder : public response_builder {
-public:
-    std::unique_ptr<response> filter(request &) override;
 };

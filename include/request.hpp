@@ -8,9 +8,13 @@
 
 class request {
     std::map<std::string,std::string> data;
-    std::string requested_path;
+    request() = default;
 public:
+    std::string requested_path;
+    std::string html_version;
     request(char* buffer, int size);
+
+    static request empty;
 
     auto operator[](const std::string& arg);
     void add_options(char * buffer, int size);
@@ -25,7 +29,10 @@ private:
         const char* to_filer;
     public:
         filter(request& parent, const char* to_filer);
+
         filter& find(const char* pattern);
+        filter& any();
+
     private:
         bool contains(const char* pattern);
     };
@@ -35,7 +42,9 @@ private:
     void parse(const std::string &line);
 
     void initialize_path(char *begin, char *end);
-    int get_index(char *ptr, char to_find);
+    int get_index(char *ptr, int start, char to_find);
     bool is_request_get(char *buffer, int size);
+
+    int get_index(char *ptr, int start, const char *to_find);
 };
 
