@@ -9,6 +9,7 @@
 #include <sstream>
 #include <algorithm>
 #include <iostream>
+#include <cstring>
 #include <fcntl.h>
 
 const char* response::standard_response = R"abc(<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">

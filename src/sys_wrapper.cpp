@@ -7,8 +7,14 @@
 
 #include <sys/types.h>
 #include <fstream>
+#include <iostream>
+#include <cstring>
 #include <unistd.h>
 
 int Write(int fd, const char* ptr, long size) {
-    return write(fd, ptr, size);
+    int res = write(fd, ptr, size);
+    if(res < 0) {
+        std::cerr << "write failed [" << errno << "] " << strerror(errno) << "\n";
+    }
+    return res;
 }
