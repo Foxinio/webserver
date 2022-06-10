@@ -51,7 +51,7 @@ void handle_connection(int accepted, sockaddr_in addr) {
             std::cerr << "past header creation\n";
             Write(accepted, header.c_str(), header.size());
             std::cerr << "past header writing\n";
-            response.fill_response(accepted);
+//            response.fill_response(accepted);
             std::cerr << "past body writing\n";
             break;
         }
