@@ -46,9 +46,13 @@ void handle_connection(int accepted, sockaddr_in addr) {
         catch(request::bad_request& e) {
             std::cerr << e.what();
             auto response = response_not_implemented();
+            std::cerr << "past response creation\n";
             auto header = response.get_header();
+            std::cerr << "past header creation\n";
             Write(accepted, header.c_str(), header.size());
+            std::cerr << "past header writing\n";
             response.fill_response(accepted);
+            std::cerr << "past body writing\n";
             break;
         }
     }
