@@ -49,9 +49,9 @@ void response::copy_file(int outfd) {
             if(red <= 0)
                 break;
             Write(outfd, buffer, red);
-            std::string extension = {req.requested_path.begin() + req.requested_path.find_last_of('.') + 1, req.requested_path.end()};
-            if(extension == "txt" || extension == "html")
-                std::cout.write(buffer, red);
+//            std::string extension = {req.requested_path.begin() + req.requested_path.find_last_of('.') + 1, req.requested_path.end()};
+//            if(extension == "txt" || extension == "html")
+//                std::cout.write(buffer, red);
         }
         close(filefd);
     }

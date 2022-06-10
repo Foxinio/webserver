@@ -39,7 +39,7 @@ void handle_connection(int accepted, sockaddr_in addr) {
             request current{buffer, count};
             auto response = get_response(current);
             auto header = response->get_header();
-            std::cout.write(header.c_str(), header.size());
+//            std::cout.write(header.c_str(), header.size());
             Write(accepted, header.c_str(), header.size());
             response->fill_response(accepted);
         }
