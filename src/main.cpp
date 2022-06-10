@@ -68,9 +68,9 @@ int main(int argc, char* argv[]) {
 
     while(true) {
         auto [addr, accepted] = accept(sockfd);
-//        std::cerr << "---------- Accepted ----------\n";
+        std::cerr << "---------- Accepted ----------\n";
         handle_connection(accepted, addr);
         close(accepted);
-//        std::cerr << "---------- Closed ----------\n";
+        std::cerr << "---------- Closed ----------\n";
     }
 }

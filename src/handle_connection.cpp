@@ -37,9 +37,15 @@ void handle_connection(int accepted, sockaddr_in addr) {
         buffer[count] = 0;
         try {
             request current{buffer, count};
+
+            std::string host = current["Host"];
+            current.requested_path = std::string{host.begin(), host.begin() + host.find(':')} + "/" + current.requested_path;
             auto response = get_response(current);
             auto header = response->get_header();
-//            std::cout.write(header.c_str(), header.size());
+            std::cout << "Requested: " << current.requested_path << "\n";
+            std::cout << "find res: " << host.find(':') << "\n";
+            std::cout.write(buffer, count);
+            std::cout.write(header.c_str(), header.size());
             Write(accepted, header.c_str(), header.size());
             response->fill_response(accepted);
         }
