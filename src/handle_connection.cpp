@@ -44,7 +44,7 @@ void handle_connection(int accepted, sockaddr_in addr) {
             response->fill_response(accepted);
         }
         catch(request::bad_request& e) {
-            std::cerr << e.what();
+            std::cerr << e.what() << "\n";
             auto response = response_not_implemented();
             std::cerr << "past response creation\n";
             auto header = response.get_header();
