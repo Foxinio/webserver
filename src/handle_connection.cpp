@@ -89,12 +89,12 @@ std::unique_ptr<response> get_response(request& req) {
 }
 
 bool is_forbidden(const std::string &path) {
-    int depth = -1;
+    int depth = 0;
     for(int i = 0; i < (int)path.size()-1 && depth >= 0; i++) {
         if(path[i] == '.' && path[i+1] == '.') depth--;
         if(path[i] == '/') depth++;
     }
-    return depth<0;
+    return depth<1;
 }
 
 //void copy_file(const char* file_path) {
