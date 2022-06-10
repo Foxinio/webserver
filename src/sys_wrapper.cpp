@@ -12,10 +12,9 @@
 #include <unistd.h>
 
 int Write(int fd, const char* ptr, long size) {
-    std::cerr << "reached sys_wrappers\n";
     int res = write(fd, ptr, size);
-    if(res < 0) {
-        std::cerr << "write failed [" << errno << "] " << strerror(errno) << "\n";
-    }
+//    if(res < 0) {
+//        std::cerr << "write failed [" << errno << "] " << strerror(errno) << "\n";
+//    }
     return res;
 }

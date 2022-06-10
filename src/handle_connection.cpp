@@ -29,7 +29,7 @@ void handle_connection(int accepted, sockaddr_in addr) {
     while(Poll(accepted, hangup_time.count())) {
         int count;
         if((count = read(accepted, buffer, BUFFER_SIZE-1)) < 0) {
-            std::cerr << "Read failed: [" << errno << "] " << strerror(errno) << ".\n";
+//            std::cerr << "Read failed: [" << errno << "] " << strerror(errno) << ".\n";
             break;
         }
         if(count == 0)
@@ -44,15 +44,10 @@ void handle_connection(int accepted, sockaddr_in addr) {
             response->fill_response(accepted);
         }
         catch(request::bad_request& e) {
-            std::cerr << e.what() << "\n";
+//            std::cerr << e.what() << "\n";
             auto response = response_not_implemented();
-            std::cerr << "past response creation\n";
             auto header = response.get_header();
-            std::cerr << "past header creation\n";
             Write(accepted, header.c_str(), header.size());
-            std::cerr << "past header writing\n";
-//            response.fill_response(accepted);
-            std::cerr << "past body writing\n";
             break;
         }
     }
