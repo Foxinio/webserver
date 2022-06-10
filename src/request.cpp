@@ -5,6 +5,7 @@
 #include <request.hpp>
 
 #include <cstring>
+#include <algorithm>
 
 
 request request::empty;

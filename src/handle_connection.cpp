@@ -39,13 +39,14 @@ void handle_connection(int accepted, sockaddr_in addr) {
             request current{buffer, count};
 
             std::string host = current["Host"];
+            if(host.size() == 0) continue;
             current.requested_path = std::string{host.begin(), host.begin() + host.find(':')} + "/" + current.requested_path;
             auto response = get_response(current);
             auto header = response->get_header();
-            std::cout << "Requested: " << current.requested_path << "\n";
-            std::cout << "find res: " << host.find(':') << "\n";
-            std::cout.write(buffer, count);
-            std::cout.write(header.c_str(), header.size());
+//            std::cout << "Requested: " << current.requested_path << "\n";
+//            std::cout << "find res: " << host.find(':') << "\n";
+//            std::cout.write(buffer, count);
+//            std::cout.write(header.c_str(), header.size());
             Write(accepted, header.c_str(), header.size());
             response->fill_response(accepted);
         }
@@ -80,7 +81,8 @@ std::unique_ptr<response> get_response(request& req) {
     if(is_forbidden(req.requested_path))
         return std::make_unique<response_forbidden>(req);
     if(fs::is_directory(req.requested_path)) {
-        req.requested_path = req.requested_path + "/" + "index.html";
+        req.requested_path = std::string(req.requested_path.begin() + req.requested_path.find('/'),
+                                         req.requested_path.end()) + "/" + "index.html";
         return std::make_unique<response_moved_permanently>(req);
     }
     if(!fs::exists(req.requested_path))
@@ -97,17 +99,3 @@ bool is_forbidden(const std::string &path) {
     return depth<1;
 }
 
-//void copy_file(const char* file_path) {
-//    int filefd = open(req.requested_path.c_str(), O_RDONLY);
-//    if(filefd >= 0) {
-//        const int BUFFER_SIZE = 4096;
-//        char* buffer = new char[BUFFER_SIZE];
-//        while (true) {
-//            int red = read(filefd, buffer, BUFFER_SIZE);
-//            if(red <= 0)
-//                break;
-//            std::cout.write(buffer)
-//        }
-//        close(filefd);
-//    }
-//}
