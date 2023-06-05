@@ -43,10 +43,10 @@ void handle_connection(int accepted, sockaddr_in addr) {
             current.requested_path = std::string{host.begin(), host.begin() + host.find(':')} + "/" + current.requested_path;
             auto response = get_response(current);
             auto header = response->get_header();
-//            std::cout << "Requested: " << current.requested_path << "\n";
-//            std::cout << "find res: " << host.find(':') << "\n";
-//            std::cout.write(buffer, count);
-//            std::cout.write(header.c_str(), header.size());
+            std::cout << "Requested: " << current.requested_path << "\n";
+            std::cout << "find res: " << host.find(':') << "\n";
+            std::cout.write(buffer, count);
+            std::cout.write(header.c_str(), header.size());
             Write(accepted, header.c_str(), header.size());
             response->fill_response(accepted);
         }
@@ -81,8 +81,10 @@ std::unique_ptr<response> get_response(request& req) {
     if(is_forbidden(req.requested_path))
         return std::make_unique<response_forbidden>(req);
     if(fs::is_directory(req.requested_path)) {
-        req.requested_path = std::string(req.requested_path.begin() + req.requested_path.find('/'),
+        req.requested_path = std::string(req.requested_path.begin() + req.requested_path.find('/')+1,
                                          req.requested_path.end()) + "/" + "index.html";
+        if(req.requested_path[0] == '.')
+            req.requested_path = req.requested_path.substr(1);
         return std::make_unique<response_moved_permanently>(req);
     }
     if(!fs::exists(req.requested_path))
